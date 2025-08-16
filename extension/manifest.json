@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "BrainBank - Your Knowledge Journal!",
+  "version": "0.1.0",
+  "description": "Summarize highlighted text, save to a gamified knowledge journal, and level up your learning.",
+  "permissions": ["contextMenus", "storage", "activeTab", "scripting", "notifications"],
+  "host_permissions": ["http://localhost:3000/*"],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_title": "Knowledge Journal" },
+  "side_panel": { "default_path": "sidepanel.html" },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "commands": {
+    "open_side_panel": {
+      "suggested_key": { "default": "Alt+K" },
+      "description": "Open Knowledge Journal side panel"
+    },
+    "summarize_selection": {
+      "suggested_key": { "default": "Alt+S" },
+      "description": "Summarize current selection"
+    }
+  },
+  "optional_host_permissions": [],
+  "optional_permissions": [],
+  "minimum_chrome_version": "114",
+  "offline_enabled": false
+}

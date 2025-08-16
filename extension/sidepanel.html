@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <link rel="stylesheet" href="sidepanel.css"/>
+  <title>Knowledge Journal</title>
+</head>
+<body>
+  <div id="app">
+    <header class="header">
+      <img src="icons/icon128.png" class="logo" alt="logo"/>
+      <h1 style="font-size:16px;margin:0;">BrainBank</h1>
+      <div class="header-actions">
+        <button class="ghost" id="openJournalBtn">Journal</button>
+        <button class="ghost" id="openSettingsBtn">Theme</button>
+        <button class="ghost" id="openHelpBtn">?</button>
+      </div>
+    </header>
+
+    <main id="route"></main>
+
+    <footer class="footer">
+      <button id="avatarBtn" class="avatar" title="Back to Main"></button>
+      <div class="progress">
+        <div class="bar"><div id="xpFill"></div></div>
+        <div class="meta">
+          <span id="levelText">Level 1</span>
+          <span id="streakText">🔥 0-day streak</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+  <script src="sidepanel.js"></script>
+</body>
+</html>

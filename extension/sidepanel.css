@@ -1,0 +1,260 @@
+:root {
+  --bg: #0f172a;
+  --fg: #ffffff;
+  --card: #ffffff;
+  --card-fg: #111827;
+  --muted: #64748b;
+  --accent: #22c55e; /* still used for progress + confetti, just not editable */
+  --shadow: 0 8px 24px rgba(0, 0, 0, .12);
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body,
+html,
+#app {
+  margin: 0;
+  height: 100%;
+  font: 14px/1.4 var(--font);
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, .06);
+}
+
+.logo {
+  width: 20px;
+  height: 20px;
+}
+
+.header-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+main#route {
+  height: calc(100% - 120px);
+  overflow: auto;
+  padding: 12px;
+}
+
+.card {
+  background: var(--card);
+  color: var(--card-fg);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: var(--shadow);
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.center-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+button.primary {
+  background: var(--card-fg);
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button.link {
+  background: transparent;
+  color: var(--fg);
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+button.ghost {
+  background: transparent;
+  color: var(--fg);
+  border: 1px solid rgba(255, 255, 255, .2);
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.footer {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-top: 1px solid rgba(255, 255, 255, .06);
+  background: rgba(15, 23, 42, .85);
+  backdrop-filter: blur(8px);
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.progress {
+  flex: 1;
+}
+
+.bar {
+  height: 8px;
+  background: rgba(255, 255, 255, .15);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+#xpFill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-top: 4px;
+  color: #cbd5e1;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item {
+  background: var(--card);
+  color: var(--card-fg);
+  padding: 10px;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+}
+
+/* Chips */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.chip {
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, .08);
+  background: #fff;
+  color: #111827;
+  cursor: pointer;
+}
+
+.chip.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: transparent;
+}
+
+/* Spinner */
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #334155;
+  border-radius: 50%;
+  animation: kjspin .9s linear infinite;
+}
+
+@keyframes kjspin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Settings grid */
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.preset-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.preset {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, .08);
+  background: #fff;
+  color: #111827;
+  cursor: pointer;
+}
+
+/* Level-up confetti */
+.level-burst {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.level-burst .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  position: absolute;
+  animation: pop 700ms ease-out forwards;
+}
+
+@keyframes pop {
+  0% {
+    transform: translate(0, 0) scale(0.6);
+    opacity: 1;
+  }
+  60% {
+    transform: translate(var(--dx), var(--dy)) scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(var(--dx) * 1.2), calc(var(--dy) * 1.2)) scale(0.9);
+    opacity: 0;
+  }
+}

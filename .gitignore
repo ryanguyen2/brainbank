@@ -1,0 +1,19 @@
+# API secrets & deps
+api/.env
+api/.env.*
+api/node_modules/
+
+# Logs
+api/*.log
+api/npm-debug.log*
+api/yarn-error.log*
+api/pnpm-debug.log*
+
+# Build artifacts (future-proof)
+extension/dist/
+extension/build/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
