@@ -1,12 +1,12 @@
 {
   "manifest_version": 3,
-  "name": "BrainBank - Your Knowledge Journal!",
+  "name": "BrainBank — Your Knowledge Journal",
   "version": "0.1.0",
-  "description": "Summarize highlighted text, save to a gamified knowledge journal, and level up your learning.",
+  "description": "Summarize highlighted text and save to a personal knowledge journal with streaks, custom avatars, and a theme studio.",
   "permissions": ["contextMenus", "storage", "activeTab", "scripting", "notifications"],
   "host_permissions": ["http://localhost:3000/*"],
   "background": { "service_worker": "background.js" },
-  "action": { "default_title": "Knowledge Journal" },
+  "action": { "default_title": "BrainBank" },
   "side_panel": { "default_path": "sidepanel.html" },
   "icons": {
     "16": "icons/icon16.png",
@@ -14,10 +14,16 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
+  "web_accessible_resources": [
+    {
+      "resources": ["avatars/*"],
+      "matches": ["<all_urls>"]
+    }
+  ],
   "commands": {
     "open_side_panel": {
       "suggested_key": { "default": "Alt+K" },
-      "description": "Open Knowledge Journal side panel"
+      "description": "Open BrainBank side panel"
     },
     "summarize_selection": {
       "suggested_key": { "default": "Alt+S" },

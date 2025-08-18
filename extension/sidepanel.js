@@ -1,7 +1,6 @@
 // extension/sidepanel.js
 
-const LEVEL_THRESHOLDS = [0,20,60,140,210,350,520,720,950,1210,1500,1820,2170,2550,2960,3400,3870,4370,4900,5460];
-
+// Modes
 const MODES = [
   { id: "skeptic",    label: "Skeptic" },
   { id: "eli5",       label: "ELI5" },
@@ -12,8 +11,8 @@ const MODES = [
 ];
 
 const DEFAULT_THEME = {
-  bg:"#0f172a", fg:"#ffffff", card:"#ffffff", cardFg:"#111827",
-  accent:"#22c55e", footerBg:"#59B08F",
+  bg:"#f4f6fb", fg:"#0f172a", card:"#ffffff", cardFg:"#111827",
+  accent:"#2563eb", footerBg:"#59B08F",
   font:"system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif"
 };
 
@@ -24,16 +23,47 @@ const PRESETS = {
   Neon:  { bg:"#0b0b0f", fg:"#e5e5ff", card:"#12121a", cardFg:"#eaeaff", accent:"#7c3aed", font: DEFAULT_THEME.font },
 };
 
+let AVATARS = []; // loaded from avatars/manifest.json
+
 const state = {
-  route:"main", lastSummary:null, journal:[], selectedEntryId:null,
-  xp:0, streak:0, lastActivityDate:null, inflight:null,
-  theme:{...DEFAULT_THEME}, inflightTimer:null, selectedMode:null,
+  route:"main",
+  lastSummary:null,
+  journal:[],
+  selectedEntryId:null,
+
+  streak:0,
+  lastActivityDate:null,
+
+  inflight:null,
+  theme:{...DEFAULT_THEME},
+  inflightTimer:null,
+  selectedMode:null,
+
+  username:"",
+  selectedAvatarId:null,
 };
 
 const $ = (s)=>document.querySelector(s);
 const route = $("#route");
 
-init();
+//bootstrap
+bootstrap();
+
+async function bootstrap(){
+  await loadAvatars();
+  init();
+}
+
+async function loadAvatars(){
+  try {
+    const url = chrome.runtime.getURL("avatars/manifest.json");
+    const res = await fetch(url);
+    AVATARS = await res.json();
+  } catch (e) {
+    console.warn("Avatar manifest missing or invalid:", e);
+    AVATARS = [];
+  }
+}
 
 function applyTheme(t){
   const th = { ...DEFAULT_THEME, ...(t||{}) };
@@ -49,12 +79,14 @@ function applyTheme(t){
 function init(){
   chrome.storage.sync.get(null, d => {
     state.journal = d.journal ?? [];
-    state.xp = d.xp ?? 0;
     state.streak = d.streakCurrent ?? 0;
     state.lastActivityDate = d.lastActivityDate ?? null;
     state.lastSummary = d.lastSummary ?? null;
     state.inflight = d.inflight ?? null;
     state.theme = { ...DEFAULT_THEME, ...(d.theme || {}) };
+    state.username = d.username ?? "";
+    state.selectedAvatarId = d.selectedAvatarId ?? null;
+
     applyTheme(state.theme);
     renderFooter();
     go("main");
@@ -71,10 +103,11 @@ function init(){
       state.lastSummary = changes.lastSummary.newValue;
       if (state.route !== "main") go("main"); else renderMain();
     }
-    if (changes.journal || changes.xp || changes.streakCurrent) {
+    if (changes.journal || changes.streakCurrent || changes.username || changes.selectedAvatarId) {
       state.journal = changes.journal?.newValue ?? state.journal;
-      state.xp = changes.xp?.newValue ?? state.xp;
       state.streak = changes.streakCurrent?.newValue ?? state.streak;
+      state.username = changes.username?.newValue ?? state.username;
+      state.selectedAvatarId = changes.selectedAvatarId?.newValue ?? state.selectedAvatarId;
       renderFooter();
     }
     if (changes.theme?.newValue) {
@@ -83,29 +116,52 @@ function init(){
     }
   });
 
-  $("#avatarBtn").addEventListener("click", () => go("main"));
+  $("#avatarBtn").addEventListener("click", () => go("avatars"));
   $("#openJournalBtn").addEventListener("click", () => go("journal"));
   $("#openSettingsBtn").addEventListener("click", () => go("settings"));
   $("#openHelpBtn").addEventListener("click", () => go("help"));
   $("#homeLogo").addEventListener("click", () => go("main"));
   $("#homeTitle").addEventListener("click", () => go("main"));
+
+  // Clicking the username also opens avatar/username editor
+  const nameEl = document.getElementById("usernameText");
+  if (nameEl) nameEl.addEventListener("click", () => go("avatars"));
 }
 
-function go(r){ state.route = r; if (r==="main") renderMain(); if (r==="journal") renderJournal(); if (r==="entry") renderEntry(); if (r==="settings") renderSettings(); if (r==="help") renderHelp(); }
-
-function levelFromXP(xp){
-  let idx = 0;
-  for (let i=0;i<LEVEL_THRESHOLDS.length;i++){ if (xp>=LEVEL_THRESHOLDS[i]) idx=i; else break; }
-  const cur = LEVEL_THRESHOLDS[idx]??0, next = LEVEL_THRESHOLDS[idx+1]??LEVEL_THRESHOLDS[idx];
-  return { level: idx+1, cur, next };
+function go(r){
+  state.route = r;
+  if (r==="main") renderMain();
+  if (r==="journal") renderJournal();
+  if (r==="entry") renderEntry();
+  if (r==="settings") renderSettings();
+  if (r==="help") renderHelp();
+  if (r==="avatars") renderAvatars();
 }
 
 function renderFooter(){
-  const { level, cur, next } = levelFromXP(state.xp);
-  $("#levelText").textContent = `Level ${level}`;
+  // username + streak
+  const name = state.username?.trim();
+  const nameEl = $("#usernameText");
+  // placeholder text
+  const isPlaceholder = !name;
+  nameEl.textContent = name || "edit profile";
+  // underline only when placeholder is shown
+  nameEl.classList.toggle("clickable", isPlaceholder);
+
   $("#streakText").textContent = `🔥 ${state.streak}-day streak`;
-  const pct = Math.min(100, Math.floor(((state.xp - cur) / Math.max(1,next-cur)) * 100));
-  $("#xpFill").style.width = pct + "%";
+
+  // avatar image on the button (default picture png when none selected)
+  const btn = document.querySelector("#avatarBtn");
+  const avatar = AVATARS.find(a => a.id === state.selectedAvatarId);
+  const url = avatar
+    ? chrome.runtime.getURL(avatar.src)
+    : chrome.runtime.getURL("avatars/default.png");
+
+  btn.style.backgroundImage = `url("${url}")`;
+  btn.style.backgroundSize = "cover";
+  btn.style.backgroundPosition = "center";
+  btn.textContent = "";
+  btn.style.border = "none";
 }
 
 function modeChips(){
@@ -120,15 +176,12 @@ function renderMain(){
   route.innerHTML = `
     <div class="card">
       ${modeChips()}
-
       <div class="row"><input id="titleInput" placeholder="add a title for this entry…"/></div>
-
       <div style="height:8px"></div>
       <div class="card" style="background:#f8fafc;">
         <div id="responseBox" style="min-height:160px;"></div>
       </div>
     </div>
-
     <div class="center-row"><button class="primary" id="saveBtn">Save</button></div>
   `;
 
@@ -186,7 +239,7 @@ async function runPreset(modeId){
         const box = $("#responseBox");
         if (!box) return;
         box.innerHTML = resp.error==="no_selection"
-          ? `<em>no selection detected. highlight text, then click a preset again.</em>`
+          ? `<em>no selection detected. highlight text on the page, then click a preset again.</em>`
           : `<em>error: ${escapeHtml(resp.error || "request failed")}</em>`;
       });
     }
@@ -199,28 +252,44 @@ async function saveEntry(){
   const entry = {
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
-    title, url: state.lastSummary.url,
+    title,
+    url: state.lastSummary.url,
     selection: state.lastSummary.selection,
     summary: state.lastSummary.summary,
     mode: state.lastSummary.mode || state.selectedMode || "custom",
   };
 
-  const before = levelFromXP(state.xp).level;
-
   state.journal.unshift(entry);
-  dailyStreakAndXP();
+  bumpStreakIfNewDay();
 
   await chrome.storage.sync.set({
-    journal: state.journal, xp: state.xp,
-    streakCurrent: state.streak, lastActivityDate: state.lastActivityDate,
+    journal: state.journal,
+    streakCurrent: state.streak,
+    lastActivityDate: state.lastActivityDate,
   });
-
-  const after = levelFromXP(state.xp).level;
-  if (after > before) levelBurstAnimation();
 
   renderFooter();
   go("journal");
 }
+
+function bumpStreakIfNewDay(){
+  const today = new Date().toISOString().slice(0,10);
+  const last = state.lastActivityDate;
+  if (last === today) return;
+
+  if (!last) state.streak = 1;
+  else {
+    const diffDays = Math.floor((Date.parse(today) - Date.parse(last)) / 86400000);
+    state.streak = (diffDays === 1) ? state.streak + 1 : 1;
+  }
+  state.lastActivityDate = today;
+}
+
+// Journal
+function backIcon(){ return `
+  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+    <polyline points="15 18 9 12 15 6"></polyline>
+  </svg>`; }
 
 async function deleteEntryById(id){
   const idx = state.journal.findIndex(e => e.id === id);
@@ -228,11 +297,6 @@ async function deleteEntryById(id){
   state.journal.splice(idx, 1);
   await chrome.storage.sync.set({ journal: state.journal });
 }
-
-function backIcon(){ return `
-  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
-    <polyline points="15 18 9 12 15 6"></polyline>
-  </svg>`; }
 
 function renderJournal(){
   const items = state.journal.map(e => `
@@ -288,14 +352,15 @@ function renderEntry(){
   $("#deleteEntryBtn").onclick = async () => { await deleteEntryById(e.id); go("journal"); };
 }
 
+// Help
 function renderHelp(){
   const rows = [
-    { id:"skeptic", label:"Skeptic", desc:"Pressure-tests the content: key claims, evidence quality, missing context, assumptions, red flags, what to verify, and a quick counter-argument to stress the idea." },
-    { id:"eli5", label:"ELI5", desc:"Explains in plain language with a tiny story. Defines core terms in one line each and ends with a single-sentence recap you can repeat." },
+    { id:"skeptic", label:"Skeptic", desc:"Critiques the text! Touches on key claims, evidence quality, missing context, assumptions, red flags, what to verify, and adds a quick counter-argument to stress the idea." },
+    { id:"eli5", label:"ELI5", desc:"Explains in plain language like you are 5 years-old with a tiny story. Defines core terms in one line each and ends with a single-sentence recap you can repeat." },
     { id:"researcher", label:"Researcher", desc:"Mini-briefing: what it is, why it matters, how it works at a high level, competing viewpoints, historical context, open questions, and solid directions for further reading." },
-    { id:"rhetoric", label:"Rhetoric", desc:"Identifies rhetorical devices (ethos/pathos/logos, framing, contrast, anaphora), quotes the exact phrasing, and explains the intended audience effect." },
-    { id:"tutor", label:"Tutor (Cornell)", desc:"Outputs Cornell notes: concise notes, cue questions to self-test later, and a 2–3 sentence summary—emphasizing definitions, relationships, and cause→effect." },
-    { id:"interviewer", label:"Interviewer", desc:"Generates a question bank: foundational comprehension, practical application, edge-case probing, plus one or two stretch questions for depth." },
+    { id:"rhetoric", label:"Rhetoric", desc:"Identifies rhetorical devices (ethos/pathos/logos, framing, contrast, repetition), quotes the exact phrasing, and explains the intended audience effect." },
+    { id:"tutor", label:"Tutor", desc:"Outputs Cornell notes: concise bullets, cue questions for self-testing, and a 2–3 sentence summary." },
+    { id:"interviewer", label:"Interviewer", desc:"Generates a question bank to help you for your next interview: comprehension, application, edge cases, and stretch questions for depth." },
   ];
 
   route.innerHTML = `
@@ -312,6 +377,7 @@ function renderHelp(){
   $("#backMain").onclick = () => go("main");
 }
 
+// Settings (Theme Studio)
 function renderSettings(){
   const t = state.theme || DEFAULT_THEME;
   route.innerHTML = `
@@ -378,36 +444,68 @@ function renderSettings(){
   });
 }
 
-function dailyStreakAndXP(){
-  const today = new Date().toISOString().slice(0,10);
-  const last = state.lastActivityDate;
-  if (last === today) return;
-  if (!last) state.streak = 1;
-  else {
-    const diffDays = Math.floor((Date.parse(today) - Date.parse(last)) / 86400000);
-    state.streak = (diffDays === 1) ? state.streak + 1 : 1;
-  }
-  state.lastActivityDate = today; state.xp = state.xp + 10;
+// Avatars
+function renderAvatars(){
+  const current = state.selectedAvatarId;
+
+  const grid = AVATARS.map(a => {
+    const url = chrome.runtime.getURL(a.src);
+    const sel = a.id === current ? "selected" : "";
+    return `
+      <div class="avatar-tile ${sel}" data-id="${a.id}" title="${a.label}">
+        <img src="${url}" alt="${a.label}"/>
+      </div>`;
+  }).join("");
+
+  route.innerHTML = `
+    <div class="card">
+      <div class="row" style="justify-content:space-between;">
+        <div style="font-weight:600;">Choose your avatar</div>
+        <button class="icon-btn" id="backMain" title="Back" aria-label="Back">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+      </div>
+
+      <div class="username-row">
+        <label style="min-width:80px;">Username</label>
+        <input id="usernameInput" placeholder="enter a display name…" value="${state.username || ""}"/>
+      </div>
+
+      <div class="avatar-grid">${grid}</div>
+
+      <div class="row" style="justify-content:flex-end; margin-top:12px;">
+        <button class="primary" id="saveAvatarBtn" style="background:var(--footer-bg)">Save</button>
+      </div>
+    </div>
+  `;
+
+  $("#backMain").onclick = () => go("main");
+
+  // Select avatar
+  route.querySelectorAll(".avatar-tile").forEach(tile => {
+    tile.addEventListener("click", () => {
+      route.querySelectorAll(".avatar-tile").forEach(t => t.classList.remove("selected"));
+      tile.classList.add("selected");
+      state.selectedAvatarId = tile.getAttribute("data-id");
+    });
+  });
+
+  // Save username + avatar
+  $("#saveAvatarBtn").onclick = async () => {
+    const username = $("#usernameInput").value.trim();
+    state.username = username;
+    await chrome.storage.sync.set({
+      username,
+      selectedAvatarId: state.selectedAvatarId
+    });
+    renderFooter();
+    go("main");
+  };
 }
 
-function levelBurstAnimation(){
-  const colors = [getVar("--accent"), "#f59e0b", "#10b981", "#3b82f6", "#ef4444", "#a855f7"];
-  const container = document.createElement("div"); container.className = "level-burst";
-  for (let i=0;i<28;i++){
-    const dot = document.createElement("div"); dot.className = "dot";
-    const angle = Math.random()*2*Math.PI, r = 80 + Math.random()*80;
-    dot.style.setProperty("--dx", Math.cos(angle)*r + "px");
-    dot.style.setProperty("--dy", Math.sin(angle)*r + "px");
-    dot.style.background = colors[i % colors.length];
-    dot.style.left = (50 + (Math.random()*10-5)) + "%";
-    dot.style.top  = (50 + (Math.random()*10-5)) + "%";
-    container.appendChild(dot);
-  }
-  document.body.appendChild(container);
-  setTimeout(()=>container.remove(), 800);
-}
-
-function getVar(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+//utils
 function escapeHtml(s){ return (s||"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 
 function formatSummaryToHTML(text){

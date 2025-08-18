@@ -1,0 +1,13 @@
+[
+  { "id": "alien",       "src": "avatars/alien.png",       "label": "Alien" },
+  { "id": "astronaut",   "src": "avatars/astronaut.png",   "label": "Astronaut" },
+  { "id": "fox",         "src": "avatars/fox.png",         "label": "Fox" },
+  { "id": "owl",         "src": "avatars/owl.png",         "label": "Owl" },
+  { "id": "panda-bear",  "src": "avatars/panda-bear.png",  "label": "Panda Bear" },
+  { "id": "penguin",     "src": "avatars/penguin.png",     "label": "Penguin" },
+  { "id": "pirate",      "src": "avatars/pirate.png",      "label": "Pirate" },
+  { "id": "robot",       "src": "avatars/robot.png",       "label": "Robot" },
+  { "id": "dog",         "src": "avatars/dog.png",         "label": "Dog"},
+  { "id": "dolphin",     "src": "avatars/dolphin.png",     "label": "Dolphin"},
+  { "id": "dragon",      "src": "avatars/dragon.png",      "label": "Dragon"}
+]
