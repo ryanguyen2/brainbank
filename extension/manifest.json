@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
   "name": "BrainBank — Your Knowledge Journal",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Summarize highlighted text and save to a personal knowledge journal with streaks, custom avatars, and a theme studio.",
   "permissions": ["contextMenus", "storage", "activeTab", "scripting", "notifications"],
-  "host_permissions": ["http://localhost:3000/*"],
+  "host_permissions": ["https://brainbank.onrender.com/*"],
   "background": { "service_worker": "background.js" },
   "action": { "default_title": "BrainBank" },
   "side_panel": { "default_path": "sidepanel.html" },

@@ -1,4 +1,5 @@
-const API_BASE = "http://localhost:3000";
+const API_BASE = "https://brainbank.onrender.com";
+
 
 // Clear remembered popup id if user closes it
 chrome.windows.onRemoved.addListener(async (windowId) => {

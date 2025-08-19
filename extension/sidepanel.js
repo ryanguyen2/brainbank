@@ -23,7 +23,7 @@ const PRESETS = {
   Neon:  { bg:"#0b0b0f", fg:"#e5e5ff", card:"#12121a", cardFg:"#eaeaff", accent:"#7c3aed", font: DEFAULT_THEME.font },
 };
 
-let AVATARS = []; // loaded from avatars/manifest.json
+let AVATARS = []; // loaded from avatars-config.json
 
 const state = {
   route:"main",
@@ -56,7 +56,7 @@ async function bootstrap(){
 
 async function loadAvatars(){
   try {
-    const url = chrome.runtime.getURL("avatars/manifest.json");
+    const url = chrome.runtime.getURL("avatars-config.json");
     const res = await fetch(url);
     AVATARS = await res.json();
   } catch (e) {
