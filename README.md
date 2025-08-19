@@ -5,7 +5,6 @@ A Chrome side-panel extension that lets you highlight text on any page and insta
 ## 🔗 Demo Video
 [Watch HERE](https://youtu.be/yKCmcgpAQ0U)
 
----
 
 ## 🧰 Languages / Tools
 
@@ -14,7 +13,6 @@ A Chrome side-panel extension that lets you highlight text on any page and insta
 **Storage:** `chrome.storage.sync` (journal, theme, streak, profile)  
 **Assets:** PNG icons/avatars
 
----
 
 ## ✨ Key Features
 
@@ -26,7 +24,6 @@ A Chrome side-panel extension that lets you highlight text on any page and insta
 - 🖼️ **Avatars & profile** — Choose an avatar, set a username (footer shows both)
 - ⚡ **Side panel UX** — Opens from toolbar or keyboard (default: **Alt+K**)
 
----
 
 ## 🧩 Technical Highlights
 
