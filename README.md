@@ -2,7 +2,8 @@
 
 A Chrome side-panel extension that lets you highlight text on any page and instantly transform it with **intelligence presets** (ELI5, Skeptic, Researcher, etc.). Save clean, formatted responses to a **personal journal** you can look back on, track your **streak**, and customize your look with **themes** and **avatars**—all in one stylish panel. Whether you want to expand more on a topic, critique the text, generate notes instantly, get interviewed on the topic, identify any literary devices, or have the information explained like you're 5, BrainBank is your GO-TO tool!
 
-🔗 **Try it out** (dev): load the `extension/` folder via `chrome://extensions` and run the local API (see setup below).
+## 🔗 Demo Video
+[Watch HERE](https://youtu.be/yKCmcgpAQ0U)
 
 ---
 
