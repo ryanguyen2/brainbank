@@ -1,4 +1,4 @@
-# BrainBank — Your Knowledge Journal (Chrome Side-Panel)
+# 🧠 BrainBank — Your Knowledge Journal (Chrome Side-Panel)
 
 A Chrome side-panel extension that lets you highlight text on any page and instantly transform it with **intelligence presets** (ELI5, Skeptic, Researcher, etc.). Save clean, formatted responses to a **personal journal** you can look back on, track your **streak**, and customize your look with **themes** and **avatars**—all in one stylish panel. Whether you want to expand more on a topic, critique the text, generate notes instantly, get interviewed on the topic, identify any literary devices, or have the information explained like you're 5, BrainBank is your GO-TO tool!
 
@@ -49,3 +49,20 @@ A Chrome side-panel extension that lets you highlight text on any page and insta
   - Each section is rendered by `sidepanel.js` with clean DOM building functions instead of heavy frameworks.  
   - **Reusable components**: chips, cards, and footer elements styled by CSS variables for easy theme switching.  
   - Journaling entries store metadata (title, source URL, selection, mode, generated output) in a consistent schema.
+
+  ## 📸 Screenshots
+
+![Main Panel](screenshots/brainbank-screenshot-1.png)  
+*Highlight text and choose an intelligence preset.*
+
+![Journal View](screenshots/brainbank-screenshot-2.png)  
+*Save, browse, and edit your personal knowledge entries.*
+
+![Theme Studio](screenshots/brainbank-screenshot-3.png)  
+*Customize colors, fonts, and styles.*
+
+![Help Section](screenshots/brainbank-screenshot-4.png)  
+*Understand what each AI preset does.*
+
+![Edit Profile](screenshots/brainbank-screenshot-5.png)  
+*Customize your username and avatar.*
